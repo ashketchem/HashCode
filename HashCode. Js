@@ -1,0 +1,173 @@
+function createHashMap( loadfactor = 0.75) {
+  const buckets = new Array(16).fill(null).map(() => []);
+  let size = 0;
+  
+  function hash(key) {
+     let hashcode = 0;
+     let primenum = 31;
+     for (let i = 0; i < key.length; i++) {
+       hashcode = (primenum * hashcode + key.charCodeAt(i)) % buckets.length;
+     }
+    return hashcode;
+  }
+  
+  function set(key, value) {
+     const index = hash(key);
+     const bucket = buckets[index];
+
+    for (let i = 0; i < bucket.length; i++) {
+      if (bucket[i][0] === key) {
+        bucket[i][1] = value;
+        return;
+      }
+    }
+    bucket.push([key, value]);
+    size++;
+
+    if (size / buckets.length > loadfactor) {
+      resize();
+    }
+  }
+
+  function get(key) {
+     const index = hash(key);
+    const bucket = buckets[index];
+
+    for (let i = 0; i < bucket.length; i++) {
+      if (bucket[i][0] === key) {
+        return bucket[i][1];
+      }
+    }
+    return null;
+  }
+
+  function has(key) {
+     const index = hash(key);
+     const bucket = buckets[index];
+
+    for (let i = 0; i < bucket.length; i++) {
+       if (bucket[i][0] === key) {
+         return bucket[i][1];
+         return true;
+       }
+    }
+    return false;
+  }
+
+  function remove(key) {
+     const index = hash(key);
+     const bucket = buckets[index];
+
+    for (let i = 0; i < bucket.length; i++) {
+      if (bucket[i][0] === key) {
+        bucket.splice(i, 1);
+        size--;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function length() {
+     return size;
+  }
+
+  function clear() {
+    for (let i = 0; i < buckets.length; i++) {
+      buckets[i] = [];
+    }
+    size = 0;
+  }
+
+  function keys() {
+     const arrayKeys = [];
+    for (const bucket of buckets) {
+      for (const [key] of bucket) {
+        arrayKeys.push(key);
+      }
+    }
+    return arrayKeys;
+  }
+
+  function values() {
+     const arrayValues = [];
+    for (const bucket of buckets) {
+      for (const [, values] of bucket) {
+        arrayValues.push(values);
+      }
+    }
+    return arrayValues;
+  }
+function entries() {
+     const arrayEntries = [];
+    for (const bucket of buckets) {
+      for (const [key, value] of bucket) {
+        arrayEntries.push([key, value]);
+      }
+    }
+    return arrayEntries;
+  }
+  
+  function resize() {
+     const oldBuckets = buckets;
+     const newBuckets = new Array(oldBuckets.length * 2).fill(null).map(() => []);
+     size = 0;
+
+    for (const bucket of oldBuckets) {
+      for (const [key, value] of bucket) {
+        const index = hash(key);
+        newBuckets[index].push([key, value]);
+        size++;
+      }
+  }
+    for (let i = 0; i < newBuckets.length; i++) {
+      buckets[i] = newBuckets[i];
+    }
+      }
+
+  return {
+    set,
+    get,
+    has,
+    remove,
+    length,
+    clear,
+    keys,
+    values,
+    entries,
+  };
+  
+}
+
+// Testing the HashMap
+const test = createHashMap(0.75);
+test.set('apple', 'red');
+test.set('banana', 'yellow');
+test.set('carrot', 'orange');
+test.set('dog', 'brown');
+test.set('elephant', 'gray');
+test.set('frog', 'green');
+test.set('grape', 'purple');
+test.set('hat', 'black');
+test.set('ice cream', 'white');
+test.set('jacket', 'blue');
+test.set('kite', 'pink');
+test.set('lion', 'golden');
+
+// Overwriting some values
+test.set('apple', 'green');
+test.set('banana', 'ripe');
+
+// Adding a new entry to trigger resizing
+test.set('moon', 'silver');
+
+// Testing other methods
+console.log(test.get('apple')); // green
+console.log(test.has('banana')); // true
+console.log(test.remove('carrot')); // true
+console.log(test.length()); // Should reflect the current number of entries
+console.log(test.keys()); // All keys
+console.log(test.values()); // All values
+console.log(test.entries()); // All key-value pairs
+test.clear(); // Clear the hash map
+console.log(test.length()); // Should be 0
